@@ -1,0 +1,13 @@
+# Do not commit live inventories, per-user logs, event logs, registry exports, profile data or secrets.
+*.log
+*.evtx
+*.reg
+*.csv
+*.jsonl
+*.xml
+*.bak
+.env
+secrets/
+private/
+reports/
+.DS_Store

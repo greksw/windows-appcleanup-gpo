@@ -1,0 +1,32 @@
+name: Static validation
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell 5.1-compatible source syntax
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem . -Recurse -File -Filter '*.ps1' | ForEach-Object {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count -gt 0) {
+              $failed=$true
+              foreach ($e in $errors) { Write-Error "$($_.FullName): $e" }
+            }
+          }
+          if ($failed) { exit 1 }
+      - name: Check accidental site-identifier disclosure
+        shell: bash
+        run: |
+          if grep -RInE '192\.168\.|10\.[0-9]{1,3}\.|172\.(1[6-9]|2[0-9]|3[01])\.' --exclude-dir=.git .; then
+            echo 'Internal identity found in public project' >&2
+            exit 1
+          fi
