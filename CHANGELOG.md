@@ -1,37 +1,32 @@
 # Reconstructed source history
 
-This history was **reconstructed from supplied script snapshots**, not from preserved Git commits. Published versions are sanitized adaptations, not exact production source copies, and were not re-executed on Windows.
+These changes are derived from the supplied files, **not historical Git commits**. Every public snapshot is redacted and has not been re-executed on Windows. Historical samples prevent accidental enforcement.
 
-## Core installer v1.1
+## v1.4 — specific Yandex Music identity
 
-- Added a named global mutex shared by the `Install-Now` and `AutoUpdate` tasks, with a 15-minute wait and abandoned-mutex handling.
-- Moved installation logic into `Invoke-7ZipDeployment`, releasing the mutex in `finally`.
-- Added workstation identity in logs and explicit logging of MSI exit `3010` (reboot required, not initiated).
-- Fixed official MSI naming: **x64** `7z2604-x64.msi`, **x86** `7z2604.msi` (no `-x86` suffix).
-- Uploaded `Install-7Zip.ps1` and `Install-7Zip-v1.1.ps1` were byte-identical.
+- Added the exact Appx name `A025C540.Yandex.Music` verified on one Windows 11 pilot host.
+- Updated version/comment metadata from `1.3` to `1.4`.
+- Retained the v1.3 protected-package and Outlook process handling.
 
-## Pre-mutex snapshot (backup recorded 2026-10-12 10:37:15)
+## v1.3 — guarded Appx list
 
-- Already included architecture selection, product-version check, busy-process deferral, local MSI cache, hash check, silent installation and basic logging.
-- Incorrectly expected `-x86.msi` as the x86 installer filename.
-- Had no mutex protecting the two scheduled deployment tasks.
-- No version label was present in the script; **we do not invent a v1.0 tag for it**.
+- Expanded the exact-name list with Xbox overlays, Copilot/Cortana, Office Hub, new Outlook, Maps/People/Bing and protected SystemApps candidates.
+- Added `NonRemovable`, `IsPartOfSystem` and `Windows\SystemApps` checks; logs `PROTECTED` without attempting forced deletion.
+- Defers new Outlook removal when `olk.exe` is active.
+- Expanded start/end operational logs with version, SID, OS build and protected count.
 
-## RDS guard v1.0 (independent component)
+## v1.0 — baseline current-user inventory/removal
 
-- Enumerates WTS sessions via `wtsapi32.dll`, including disconnected user sessions.
-- Defers installation if any user session exists without terminating sessions or rebooting; returns code `0` on deferral.
-- Otherwise invokes the centrally versioned installer and propagates its exit code.
-- Public adaptation logs **session counts only**, not account identities.
+- `Audit` by default, exact Appx `Name` matching for `Remove-AppxPackage` in `Enforce` mode.
+- Rejects `SYSTEM`, skips servers by default, user mutex, per-user logging.
+- HKCU Win32 entries are inventory only, separate opt-in for per-user OneDrive.
 
-## Manifest evolution (26.04)
+## CMD wrapper history
 
-- Initial placeholder manifest contained invalid SHA256 values and x86 filename `7z2604-x86.msi`.
-- Final manifest used `7z2604.msi` and SHA256 strings of correct length; the binaries were not supplied, so independent hash verification was not possible.
-- Public manifest substitutes nonfunctional hash placeholders.
+The three real launchers ran v1.0, v1.3, v1.4 with `-Mode Enforce`. Public copies use **Audit** intentionally and are not byte-identical.
 
-## Evidence limits
+## Public-only modifications
 
-- No conclusive fleet-wide compliance, production rollback, or full DFSR verification can be inferred from the sources.
-- A one-line `dfsr-test` marker is **not** proof that SYSVOL/DFSR replication was healthy.
-- Historical Git release tags have not been reconstructed.
+- Replaced internal domain, organization, host names and paths.
+- Removed `UninstallString` / `QuietUninstallString` from diagnostic logs to avoid leaking sensitive command-line arguments.
+- Current sample requires explicit enforcement acknowledgement; historical samples disable enforcement altogether.
